@@ -13,6 +13,7 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
     
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
+    var successScanSound: SystemSoundID = 1052
 
     //MARK: - Lifecycle
     override func viewDidLoad() {
@@ -75,6 +76,7 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
     
     //MARK: - Utilities
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+        AudioServicesPlaySystemSound(successScanSound)
         captureSession.stopRunning()
         
         if let metadataObject = metadataObjects.first {
