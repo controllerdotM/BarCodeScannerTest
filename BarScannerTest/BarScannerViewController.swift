@@ -19,10 +19,10 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = UIColor.whiteColor()
+        view.backgroundColor = UIColor.white
         captureSession = AVCaptureSession()
         
-        let videoCaptureDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
+        let videoCaptureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         let videoInput: AVCaptureDeviceInput
         
         do {
@@ -43,7 +43,7 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
         // You can only add an output to a session if canAddOutput: returns true.
         if (captureSession.canAddOutput(metadataOutput)) {
             captureSession.addOutput(metadataOutput)
-            metadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypePDF417Code]
         } else {
             captureFailed()
@@ -58,50 +58,52 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
         captureSession.startRunning()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if (captureSession?.running == false) {
+        if (captureSession?.isRunning == false) {
             captureSession.startRunning()
         }
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if (captureSession?.running == true) {
+        if (captureSession?.isRunning == true) {
             captureSession.stopRunning()
         }
     }
     
     //MARK: - Utilities
-    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
         AudioServicesPlaySystemSound(successScanSound)
         captureSession.stopRunning()
         
         if let metadataObject = metadataObjects.first {
             let readableObject = metadataObject as! AVMetadataMachineReadableCodeObject
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            foundCode(readableObject.stringValue)
+            foundCode(code: readableObject.stringValue)
         }
         // Dismiss the view controller if a bar code is found
         //dismissViewControllerAnimated(true, completion: nil)
     }
     
+    
+    
     func foundCode(code: String) {
-        let alertController = UIAlertController(title: "Found Bar Code", message: "\(code)", preferredStyle: .Alert)
-        let alertAction = UIAlertAction(title: "OK", style: .Default) { _ in
-            self.dismissViewControllerAnimated(true, completion: nil)
+        let alertController = UIAlertController(title: "Found Bar Code", message: "\(code)", preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "OK", style: .default) { _ in
+            self.dismiss(animated: true, completion: nil)
         }
         alertController.addAction(alertAction)
-        presentViewController(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
         print(code)
     }
     
     func captureFailed() {
-        let alertController = UIAlertController(title: "Scanning Not Supported", message: "Your device does support scanning. Please use a device with a camera.", preferredStyle: .Alert)
-        alertController.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
-        presentViewController(alertController, animated: true, completion: nil)
+        let alertController = UIAlertController(title: "Scanning Not Supported", message: "Your device does support scanning. Please use a device with a camera.", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alertController, animated: true, completion: nil)
         captureSession = nil
     }
     
