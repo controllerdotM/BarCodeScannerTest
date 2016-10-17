@@ -44,7 +44,7 @@ class BarScannerViewController: UIViewController, AVCaptureMetadataOutputObjects
         if (captureSession.canAddOutput(metadataOutput)) {
             captureSession.addOutput(metadataOutput)
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-            metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypePDF417Code]
+            metadataOutput.metadataObjectTypes = metadataOutput.availableMetadataObjectTypes
         } else {
             captureFailed()
             return
